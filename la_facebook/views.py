@@ -23,7 +23,8 @@ def facebook_login(request, redirect_field_name="next",
         logger.debug("la_facebook.views.facebook_login: request has session")
         # this session variable is used by the callback
         request.session[redirect_to_session_key] = request.GET.get(redirect_field_name)
-    return HttpResponseRedirect(access.authorization_url(token, display=display))
+    protocol = "https" if request.is_secure() else "http"
+    return HttpResponseRedirect(access.authorization_url(token, display=display, protocol=protocol))
 
 
 def facebook_callback(request, error_template_name="la_facebook/fb_error.html"):
@@ -43,7 +44,8 @@ def facebook_callback(request, error_template_name="la_facebook/fb_error.html"):
     # TODO: Check to make sure the session cookie is setting correctly
     unauth_token = request.session.get("unauth_token", None)
     try:
-        auth_token = access.check_token(unauth_token, request.GET)
+        protocol = "https" if request.is_secure() else "http"
+        auth_token = access.check_token(unauth_token, request.GET, protocol=protocol)
     except MissingToken:
         ctx.update({"error": "token_missing"})
         logger.error('la_facebook.views.facebook_callback: missing token')

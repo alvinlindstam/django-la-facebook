@@ -85,13 +85,13 @@ class OAuthAccess(object):
             self._unauthorized_token = self.fetch_unauthorized_token()
         return self._unauthorized_token
 
-    def fetch_unauthorized_token(self):
+    def fetch_unauthorized_token(self, protocol="http"):
         """
             This function may further handle when a user does not authorize the app to access their facebook information.
         """
         #@TODO - Can we delete this too?
         parameters = {
-            "oauth_callback": self.callback_url,
+            "oauth_callback": self.callback_url(protocol=protocol),
         }
         client = oauth.Client(self.consumer)
         response, content = client.request(self.request_token_url,
@@ -107,18 +107,10 @@ class OAuthAccess(object):
                 ))
         return oauth.Token.from_string(content)
 
-    @property
-    def callback_url(self):
-        """
-            current site id
-            grab base site url
-            grab callback url
-            return base and callback url
-        """
-
+    def callback_url(self, protocol="http"):
         current_site = Site.objects.get(pk=settings.SITE_ID)
         # @@@ http fix
-        base_url = "http://%s" % current_site.domain
+        base_url = "%s://%s" % (protocol, current_site.domain)
         callback_url = reverse("la_facebook_callback")
         return "%s%s" % (base_url, callback_url)
 
@@ -153,7 +145,7 @@ class OAuthAccess(object):
                 % (self.access_token_url,content))
         return oauth.Token.from_string(content)
 
-    def check_token(self, unauth_token, parameters):
+    def check_token(self, unauth_token, parameters, protocol="http"):
         """
             check token
             check to see if unauthorized token
@@ -176,7 +168,7 @@ class OAuthAccess(object):
             if code:
                 params = dict(
                     client_id = self.key,
-                    redirect_uri = self.callback_url,
+                    redirect_uri = self.callback_url(protocol=protocol),
                 )
                 params["client_secret"] = self.secret
                 params["code"] = code
@@ -217,7 +209,7 @@ class OAuthAccess(object):
             callback_str = "la_facebook.callbacks.default.default_facebook_callback"
         return load_path_attr(callback_str)
 
-    def authorization_url(self, token=None, display="page"):
+    def authorization_url(self, token=None, display="page", protocol="http"):
         """
             authorization url
             if token is none set OAuth params client id, url, set scope and rturn authorization url
@@ -228,7 +220,7 @@ class OAuthAccess(object):
             # OAuth 2.0
             params = dict(
                 client_id = self.key,
-                redirect_uri = self.callback_url,
+                redirect_uri = self.callback_url(protocol=protocol),
                 display = display,
             )
             scope = self.provider_scope
