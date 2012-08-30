@@ -3,10 +3,10 @@ from django.test import TestCase
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
-from la_facebook.access import OAuthAccess
+from django.utils import simplejson as json
+from la_facebook.access import OAuthAccess, OAuth20Token
 from la_facebook.utils.loader import load_path_attr
 from la_facebook.exceptions import FacebookSettingsKeyError
-
 
 class MissingKeySetting(TestCase):
 
@@ -43,6 +43,42 @@ class MissingFacebookSettings(TestCase):
     def tearDown(self):
         settings.FACEBOOK_ACCESS_SETTINGS = self.facebook_settings
 
+class HttpMock(object):
+    def __init__(self, *args, **kwargs):
+        self.counter = 0
+
+    def request(self, *args, **kwargs):
+        self.counter += 1
+        if self.counter < 3:
+            import socket
+            raise socket.timeout()
+        else:
+            return {"status": 200}, json.dumps({"dummy": True})
+
+class TestConnection(TestCase):
+    def test_api_with_retries(self):
+        oauth = OAuthAccess()
+        params = {
+            "kind": "json",
+            "url": "dummy",
+            "token": OAuth20Token("dummy"),
+            "max_retries": 5,
+            "http": HttpMock(),
+        }
+        # NOTE: Raises exception if it doesn't work
+        oauth.make_api_call(**params)
+
+    def test_api_timeout(self):
+        oauth = OAuthAccess()
+        params = {
+            "kind": "json",
+            "url": "dummy",
+            "token": OAuth20Token("dummy"),
+            "max_retries": 1,
+            "http": HttpMock(),
+        }
+        import socket
+        self.assertRaises(socket.timeout, lambda: oauth.make_api_call(**params))
 
 class PropertyTests(TestCase):
 

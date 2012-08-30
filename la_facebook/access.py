@@ -244,7 +244,7 @@ class OAuthAccess(object):
             request.sign_request(self.signature_method, self.consumer, token)
             return request.to_url()
 
-    def make_api_call(self, kind, url, token, method="GET", **kwargs):
+    def make_api_call(self, kind, url, token, method="GET", max_retries=5, http=httplib2.Http(timeout=5), **kwargs):
         if isinstance(token, OAuth20Token):
             request_kwargs = dict(method=method)
             if method == "POST":
@@ -255,8 +255,19 @@ class OAuthAccess(object):
                 request_kwargs["body"] = urllib.urlencode(params)
             else:
                 url += "?%s" % urllib.urlencode(dict(access_token=str(token)))
-            http = httplib2.Http()
-            response, content = http.request(url, **request_kwargs)
+
+            retries = 0
+            done = False
+            while retries < max_retries and not done:
+                try:
+                    response, content = http.request(url, **request_kwargs)
+                    done = True
+                except socket.timeout:
+                    retries += 1
+                    pass
+            if not done:
+                raise socket.timeout
+
         else:
             raise ValueError("an OAuth20Token is required for API call")
         if response["status"] == "401":
