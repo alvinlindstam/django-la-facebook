@@ -1,4 +1,4 @@
-# Django settings for fb_la_test project.
+# Django settings for test_project project.
 import sys, os
 
 # We need the project's root in our Python Path. Let's add it

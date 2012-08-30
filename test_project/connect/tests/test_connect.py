@@ -2,7 +2,7 @@ from django.conf import settings
 
 import httplib2
 
-from fb_la_test.connect.tests.utils import LaFacebookTestCase
+from test_project.connect.tests.utils import LaFacebookTestCase
 
 class TestConnection(LaFacebookTestCase):
     
