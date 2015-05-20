@@ -1,12 +1,12 @@
 import cgi
 import datetime
 import httplib2
+import json
 import socket
 import urllib
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.utils import simplejson as json
 
 from django.contrib.sites.models import Site
 

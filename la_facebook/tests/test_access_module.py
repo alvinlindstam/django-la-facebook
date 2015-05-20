@@ -1,9 +1,9 @@
+import json
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
-from django.utils import simplejson as json
 from la_facebook.access import OAuthAccess, OAuth20Token
 from la_facebook.utils.loader import load_path_attr
 from la_facebook.exceptions import FacebookSettingsKeyError
