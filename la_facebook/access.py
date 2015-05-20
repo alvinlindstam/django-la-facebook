@@ -1,13 +1,10 @@
 import cgi
 import datetime
 import httplib2
-import logging
 import socket
 import urllib
-import urlparse
 
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.utils import simplejson as json
 
@@ -15,10 +12,7 @@ from django.contrib.sites.models import Site
 
 import oauth2 as oauth
 
-from la_facebook.exceptions import (
-                    NotAuthorized, MissingToken, UnknownResponse,
-                    ServiceFail, FacebookSettingsKeyError
-                    )
+from la_facebook.exceptions import NotAuthorized, UnknownResponse, ServiceFail, FacebookSettingsKeyError
 from la_facebook.utils.anyetree import etree
 from la_facebook.utils.loader import load_path_attr
 from la_facebook.la_fb_logging import logger
@@ -52,6 +46,7 @@ class OAuthAccess(object):
             return settings.FACEBOOK_ACCESS_SETTINGS["FACEBOOK_APP_SECRET"]
         except KeyError:
             raise FacebookSettingsKeyError("FACEBOOK_ACCESS_SETTINGS must have a FACEBOOK_APP_SECRET entry")
+
     @property
     def access_token_url(self):
         """
@@ -80,7 +75,7 @@ class OAuthAccess(object):
         """
             This function may handle when a user does not authorize the app to access their facebook information.
         """
-        #@TODO - Can we delete this?
+        # @TODO - Can we delete this?
         if not hasattr(self, "_unauthorized_token"):
             self._unauthorized_token = self.fetch_unauthorized_token()
         return self._unauthorized_token
@@ -89,16 +84,16 @@ class OAuthAccess(object):
         """
             This function may further handle when a user does not authorize the app to access their facebook information.
         """
-        #@TODO - Can we delete this too?
+        # @TODO - Can we delete this too?
         parameters = {
             "oauth_callback": self.callback_url(protocol=protocol),
         }
         client = oauth.Client(self.consumer)
         response, content = client.request(self.request_token_url,
-            method = "POST",
+            method="POST",
             # parameters must be urlencoded (which are then re-decoded by
             # and re-encoded by oauth2 -- seems lame)
-            body = urllib.urlencode(parameters),
+            body=urllib.urlencode(parameters),
         )
         if response["status"] != "200":
             raise UnknownResponse(
@@ -131,18 +126,19 @@ class OAuthAccess(object):
         client = oauth.Client(self.consumer, token=token)
         logger.debug("OAuthAccess.authorized_token: params: %s" % parameters)
         response, content = client.request(self.access_token_url,
-            method = "POST",
+            method="POST",
             # parameters must be urlencoded (which are then re-decoded by
             # oauth2 -- seems lame)
-            body = urllib.urlencode(parameters),
+            body=urllib.urlencode(parameters),
         )
         if response["status"] != "200":
             raise UnknownResponse(
                 "Got %s from %s:\n\n%s" % (
                     response["status"], self.access_token_url, content
                 ))
-        logger.debug("OAuthAccess.authorized_token: response from %s: %s"
-                % (self.access_token_url,content))
+        logger.debug("OAuthAccess.authorized_token: response from %s: %s" % (
+            self.access_token_url, content
+        ))
         return oauth.Token.from_string(content)
 
     def check_token(self, unauth_token, parameters, protocol="http"):
@@ -167,21 +163,21 @@ class OAuthAccess(object):
             code = parameters.get("code")
             if code:
                 params = dict(
-                    client_id = self.key,
-                    redirect_uri = self.callback_url(protocol=protocol),
+                    client_id=self.key,
+                    redirect_uri=self.callback_url(protocol=protocol),
                 )
                 params["client_secret"] = self.secret
                 params["code"] = code
-                logger.debug("OAuthAccess.check_token: token access params: "\
-                        "%s, sent to %s" % (params, self.access_token_url))
+                logger.debug("OAuthAccess.check_token: token access params: %s, sent to %s" % (
+                    params, self.access_token_url
+                ))
                 raw_data = urllib.urlopen(
                     "%s?%s" % (
                         self.access_token_url, urllib.urlencode(params)
                     )
                 ).read()
                 response = cgi.parse_qs(raw_data)
-                logger.debug("OAuthAccess.check_token: response from code"\
-                        "request: %s" % response)
+                logger.debug("OAuthAccess.check_token: response from code request: %s" % response)
                 if 'expires' in response:
                     expires = int(response["expires"][-1])
                 else:
@@ -193,8 +189,7 @@ class OAuthAccess(object):
                 )
             else:
                 # @@@ this error case is not nice
-                logger.warning("OAuth20Token.check_token: no unauthorized" \
-                        "token or code provided")
+                logger.warning("OAuth20Token.check_token: no unauthorized token or code provided")
                 return None
 
     @property
@@ -219,9 +214,9 @@ class OAuthAccess(object):
         if token is None:
             # OAuth 2.0
             params = dict(
-                client_id = self.key,
-                redirect_uri = self.callback_url(protocol=protocol),
-                display = display,
+                client_id=self.key,
+                redirect_uri=self.callback_url(protocol=protocol),
+                display=display,
             )
             scope = self.provider_scope
             if scope is not None:
@@ -230,8 +225,8 @@ class OAuthAccess(object):
         else:
             request = oauth.Request.from_consumer_and_token(
                 self.consumer,
-                token = token,
-                http_url = self.authorize_url,
+                token=token,
+                http_url=self.authorize_url,
             )
             request.sign_request(self.signature_method, self.consumer, token)
             return request.to_url()
@@ -281,9 +276,7 @@ class OAuthAccess(object):
         else:
             raise Exception("unsupported API kind")
 
-
 class OAuth20Token(object):
-
     def __init__(self, token, expires=None):
         self.token = token
         if expires is not None:
