@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db.models import get_model
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -82,7 +83,8 @@ class DefaultFacebookCallback(BaseFacebookCallback):
         if token.expires:
             logger.debug("DefaultFacebookCallback.handle_unauthenticated_user"\
                     ": setting session expiration to: %s" % token.expires)
-            request.session.set_expiry(token.expires)
+            seconds_to_expiry = (datetime.now() - token.expires).seconds
+            request.session.set_expiry(seconds_to_expiry)
 
     def update_profile_from_graph(self, request, access, token, profile):
         user_data = self.fetch_user_data(request, access, token)
