@@ -12,11 +12,10 @@ Full Documentation: http://django-la-facebook.readthedocs.org/en/latest/index.ht
 Usage
 -----
 
-
 Get ``django-la-facebook`` into your python path::
 
     pip install django-la-facebook
-    
+
 Add ``la_facebook`` to your INSTALLED_APPS in settings.py::
 
     INSTALLED_APPS = (
@@ -24,13 +23,13 @@ Add ``la_facebook`` to your INSTALLED_APPS in settings.py::
         'la_facebook',
         ...
         )
-    
+
 Add ``la_facebook`` to your root urlconf (urls.py)::
 
     urlpatterns = patterns('',
         ...,
         url(r"^la_facebook/", include("la_facebook.urls")),
-        ...,        
+        ...,
     )
 
 Add settings just as::
