@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from la_facebook.models import UserAssociation
 
 class UserAssociationTests(TestCase):
     def setUp(self):
-        self.user1 = User.objects.create(username='tester1',password="test")
+        self.user1 = get_user_model().objects.create(username='tester1', password="test")
         self.user1.save()
-        self.user2 = User.objects.create(username='tester2',password="test")
+        self.user2 = get_user_model().objects.create(username='tester2', password="test")
         self.user2.save()
 
     def test_expired(self):

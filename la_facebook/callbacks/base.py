@@ -2,7 +2,7 @@ import urlparse
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template.defaultfilters import slugify
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.conf import settings
 from la_facebook.la_fb_logging import logger
 
@@ -19,7 +19,7 @@ class BaseFacebookCallback(object):
                 logger.debug("BaseFacebookCallback.__call__: no existing django user found for this facebook identifier")
                 ret = self.handle_no_user(request, access, token, user_data)
                 # allow handle_no_user to create a user if need be
-                if isinstance(ret, User):
+                if isinstance(ret, get_user_model()):
                     logger.debug("BaseFacebookCallback.__call__: self.handle_no_user returned valid django user")
                     user = ret
             else:

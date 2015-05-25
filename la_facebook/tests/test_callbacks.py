@@ -11,7 +11,8 @@ try:
 except ImportError:
     raise ImportError("callback tests require Django > 1.3 for RequestFactory")
 
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
 
 from la_facebook.access import OAuthAccess, OAuth20Token
 from la_facebook.callbacks.base import BaseFacebookCallback
@@ -28,8 +29,8 @@ class BaseCallbackTests(TestCase):
 
     def setUp(self):
         # logger.debug("callback test case setup")
-        test_user = User()
         self.request = factory.get('/callback', data={'next': 'dummy'})
+        test_user = get_user_model()()
         test_user.username = 'test'
         test_user.save()
         self.request.user = test_user
@@ -80,8 +81,8 @@ class DefaultCallbackTests(TestCase):
 
     def setUp(self):
         # logger.debug("callback test case setup")
-        test_user = User()
         self.request = factory.get('/callback', data={'next': 'dummy'})
+        test_user = get_user_model()()
         test_user.username = 'test'
         test_user.save()
         self.test_user = test_user
@@ -150,7 +151,7 @@ class DefaultCallbackTests(TestCase):
         resp = callback.handle_no_user(self.request, self.access, self.token,
                 user_data)
         ident = callback.identifier_from_data(user_data)
-        expected_user = User.objects.get(username=ident)
+        expected_user = get_user_model().objects.get(username=ident)
         # was the expected user created and returned
         self.assertEquals(resp, expected_user)
         # was the set_expiry method called on the session

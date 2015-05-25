@@ -1,7 +1,7 @@
 from datetime import datetime
 from django.db.models import get_model
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.auth import login
 from la_facebook.la_fb_logging import logger
 from la_facebook.models import UserAssociation
@@ -103,12 +103,14 @@ class DefaultFacebookCallback(BaseFacebookCallback):
 
     def create_user(self, request, access, token, user_data):
         identifier = self.identifier_from_data(user_data)
+        User = get_user_model()
+        USERNAME_FIELD = User.USERNAME_FIELD
         username = str(identifier)
-        if User.objects.filter(username=username).count():
-            user = User.objects.get(username=username)
+        if User.objects.filter(**{USERNAME_FIELD: username}).count():
             logger.warning("DefaultFacebookCallback.create_user: A user for was already found, when asked to create a user for %s" % username)
+            user = User.objects.get(**{USERNAME_FIELD: username})
         else:
-            user = User(username=str(identifier))
+            user = User(**{USERNAME_FIELD: str(identifier)})
             user.set_unusable_password()
             logger.debug(user_data)
             if 'email' in user_data:

@@ -110,7 +110,7 @@ class PropertyTests(TestCase):
 
     def test_callback_url(self):
         oauth = OAuthAccess()
-        callback_url = oauth.callback_url
+        callback_url = oauth.callback_url()
         current_site = Site.objects.get(pk=settings.SITE_ID)
         base_url = "http://%s" % current_site.domain
         reversed_url = reverse("la_facebook_callback")
