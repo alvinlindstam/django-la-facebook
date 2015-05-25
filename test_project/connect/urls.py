@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, url
 
 urlpatterns = patterns('test_project.connect.views',
     url(r'^/?$', "test_index", name="index"),
