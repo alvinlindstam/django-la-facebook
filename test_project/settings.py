@@ -1,5 +1,6 @@
 # Django settings for test_project project.
-import sys, os
+import sys
+import os
 
 # We need the project's root in our Python Path. Let's add it
 test_project = os.path.dirname(__file__)
@@ -9,20 +10,14 @@ sys.path.append(test_directory)
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
-)
+ADMINS = ()
 
 MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'dummy',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'dummy',
     }
 }
 
@@ -70,7 +65,6 @@ SECRET_KEY = 'hdik5*)66ahwns+q4ckb@7cehrq=n^e^^y23*sm(xn-f785b7b'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -83,11 +77,7 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'test_project.urls'
 
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
+TEMPLATE_DIRS = ()
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -101,7 +91,7 @@ INSTALLED_APPS = (
 )
 
 try:
-    import django_coverage
+    import django_coverage  # NOQA
     INSTALLED_APPS += ('django_coverage',)
 except ImportError:
     pass
@@ -109,17 +99,14 @@ except ImportError:
 FACEBOOK_APP_ID = '124397597633470'
 FACEBOOK_APP_SECRET = 'cdd60917e6a30548b933ba91c48289bc'
 
-AUTH_PROFILE_MODULE="connect.Profile"
+AUTH_PROFILE_MODULE = "connect.Profile"
 
-LOGIN_REDIRECT_URL="/"
+LOGIN_REDIRECT_URL = "/"
 
 FACEBOOK_ACCESS_SETTINGS = {
-        "FACEBOOK_APP_ID": FACEBOOK_APP_ID,
-        "FACEBOOK_APP_SECRET": FACEBOOK_APP_SECRET,
-        "LOG_LEVEL": "DEBUG",
-        "LOG_FILE": "/tmp/la_facebook.log",
-        # The following keys are optional
-        # TODO - Comment next line out but still have tests pass
-        "CALLBACK": "la_facebook.callbacks.default.default_facebook_callback", 
-        #"PROVIDER_SCOPE": ['email','read_stream'], # here as sample - optional
+    "FACEBOOK_APP_ID": FACEBOOK_APP_ID,
+    "FACEBOOK_APP_SECRET": FACEBOOK_APP_SECRET,
+    "LOG_LEVEL": "DEBUG",
+    "LOG_FILE": "/tmp/la_facebook.log",
+    "CALLBACK": "la_facebook.callbacks.default.default_facebook_callback",
 }
