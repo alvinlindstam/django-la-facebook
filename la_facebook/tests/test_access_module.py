@@ -29,7 +29,6 @@ class MissingFacebookSettings(TestCase):
 
     def setUp(self):
         try:
-            print "setUp for MissingFacebookSettings"
             self.facebook_settings = settings.FACEBOOK_ACCESS_SETTINGS
             del(settings.FACEBOOK_ACCESS_SETTINGS)
         except (ImproperlyConfigured):
