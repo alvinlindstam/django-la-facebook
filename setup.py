@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="django-la-facebook",
-    version="0.1.3",
+    version="0.1.4",
     author="pydanny",
     author_email="pydanny@pydanny.com",
     description="Definitive facebook auth for Django",
