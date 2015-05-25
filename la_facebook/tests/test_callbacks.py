@@ -2,9 +2,9 @@ import datetime
 from django.test import TestCase
 
 try:
-  from mock import Mock, patch
+    from mock import Mock, patch
 except ImportError:
-  raise ImportError("Mock is a requirement for la_facebook tests")
+    raise ImportError("Mock is a requirement for la_facebook tests")
 
 try:
     from django.test.client import RequestFactory
@@ -16,23 +16,20 @@ from django.contrib.auth.models import User, AnonymousUser
 from la_facebook.access import OAuthAccess, OAuth20Token
 from la_facebook.callbacks.base import BaseFacebookCallback
 from la_facebook.callbacks.default import DefaultFacebookCallback
-# from la_facebook.la_fb_logging import logger
 from la_facebook.models import UserAssociation
 
 factory = RequestFactory()
 
 mock_fetch_user_data = Mock()
-mock_fetch_user_data.return_value = {'id':'facebookid','color':'red'}
-
+mock_fetch_user_data.return_value = {'id': 'facebookid', 'color': 'red'}
 
 class BaseCallbackTests(TestCase):
-
     urls = 'la_facebook.tests.urls'
 
     def setUp(self):
         # logger.debug("callback test case setup")
-        self.request = factory.get('/callback',data={'next':'dummy'})
         test_user = User()
+        self.request = factory.get('/callback', data={'next': 'dummy'})
         test_user.username = 'test'
         test_user.save()
         self.request.user = test_user
@@ -48,51 +45,43 @@ class BaseCallbackTests(TestCase):
         basecallback = BaseFacebookCallback()
         ret = basecallback(self.request, self.access, self.token)
         self.assertEquals(ret.status_code, 302)
-        # logger.debug(str(ret._headers['location'][1]))
-        self.assertEquals(ret._headers['location'][1], '/dummy' )
+        self.assertEquals(ret._headers['location'][1], '/dummy')
 
     def test_redirect_url(self):
         callback = BaseFacebookCallback()
         resp = callback.redirect_url(self.request)
-        self.assertEquals(resp,'dummy')
+        self.assertEquals(resp, 'dummy')
 
     def test_identifier_from_data(self):
         callback = BaseFacebookCallback()
-        data = {'name':'test name','id':'testid'}
+        data = {'name': 'test name', 'id': 'testid'}
         resp = callback.identifier_from_data(data)
-        self.assertEquals(resp,'test-name-testid')
+        self.assertEquals(resp, 'test-name-testid')
 
- # Boilerplated, only tests that # of args not changed in regression:
-
+    # Boilerplated, only tests that # of args not changed in regression:
     def test_fetch_user_data(self):
         callback = BaseFacebookCallback()
-        self.assertRaises(NotImplementedError,callback.fetch_user_data,
-                'arg','arg','arg')
+        self.assertRaises(NotImplementedError, callback.fetch_user_data, 'arg', 'arg', 'arg')
 
     def test_lookup_user(self):
         callback = BaseFacebookCallback()
-        self.assertRaises(NotImplementedError,callback.lookup_user,
-                'arg','arg','arg')
+        self.assertRaises(NotImplementedError, callback.lookup_user, 'arg', 'arg', 'arg')
 
     def test_handle_no_user(self):
         callback = BaseFacebookCallback()
-        self.assertRaises(NotImplementedError,callback.handle_no_user,
-                'arg','arg','arg','arg')
+        self.assertRaises(NotImplementedError, callback.handle_no_user, 'arg', 'arg', 'arg', 'arg')
 
     def test_handle_unauthenticated_user(self):
         callback = BaseFacebookCallback()
-        self.assertRaises(NotImplementedError,callback.handle_unauthenticated_user,
-                'arg','arg','arg','arg','arg')
-
+        self.assertRaises(NotImplementedError, callback.handle_unauthenticated_user, 'arg', 'arg', 'arg', 'arg', 'arg')
 
 class DefaultCallbackTests(TestCase):
-
     urls = 'la_facebook.tests.urls'
 
     def setUp(self):
         # logger.debug("callback test case setup")
-        self.request = factory.get('/callback',data={'next':'dummy'})
         test_user = User()
+        self.request = factory.get('/callback', data={'next': 'dummy'})
         test_user.username = 'test'
         test_user.save()
         self.test_user = test_user
@@ -109,38 +98,33 @@ class DefaultCallbackTests(TestCase):
 
     def test_lookup_user_exists(self):
         callback = DefaultFacebookCallback()
-        user = callback.lookup_user(self.request, self.access,{'id':'facebookid'})
+        user = callback.lookup_user(self.request, self.access, {'id': 'facebookid'})
         self.assertEquals(user, self.test_user)
 
     def test_lookup_user_does_not_exist(self):
         callback = DefaultFacebookCallback()
-        user = callback.lookup_user(self.request, self.access,{'id':'bad-id'})
-        self.assertEquals(user,None)
+        user = callback.lookup_user(self.request, self.access, {'id': 'bad-id'})
+        self.assertEquals(user, None)
 
-    @patch(
-       'la_facebook.callbacks.default.DefaultFacebookCallback.fetch_user_data',
-       mock_fetch_user_data)
+    @patch('la_facebook.callbacks.default.DefaultFacebookCallback.fetch_user_data', mock_fetch_user_data)
     def test_update_profile_from_graph(self):
         callback = DefaultFacebookCallback()
+
         class DummyProfile(object):
             def __init__(self):
                 self.color = "blue"
-        profile = DummyProfile()
-        ret_p = callback.update_profile_from_graph(self.request, self.access,
-                self.token, profile)
-        self.assertEquals(ret_p.color,'red')
 
-    @patch(
-       'la_facebook.callbacks.default.DefaultFacebookCallback.fetch_user_data',
-       mock_fetch_user_data)
+        profile = DummyProfile()
+        ret_p = callback.update_profile_from_graph(self.request, self.access, self.token, profile)
+        self.assertEquals(ret_p.color, 'red')
+
+    @patch('la_facebook.callbacks.default.DefaultFacebookCallback.fetch_user_data', mock_fetch_user_data)
     def test_fectch_user_data(self):
         callback = DefaultFacebookCallback()
         ud = callback.fetch_user_data(self.request, self.access, 'faketoken')
         self.assertEquals(ud['id'], 'facebookid')
 
-    @patch(
-       'la_facebook.callbacks.default.DefaultFacebookCallback.fetch_user_data',
-       mock_fetch_user_data)
+    @patch('la_facebook.callbacks.default.DefaultFacebookCallback.fetch_user_data', mock_fetch_user_data)
     def test_handle_no_user(self):
         """
         This is a complex functional/integration test, hitting the following:
@@ -162,13 +146,13 @@ class DefaultCallbackTests(TestCase):
         pseudo_session = session_like_obj()
         self.request.session = pseudo_session
         callback = DefaultFacebookCallback()
-        user_data = {'name':'new_user','id':'newfacebookid'}
+        user_data = {'name': 'new_user', 'id': 'newfacebookid'}
         resp = callback.handle_no_user(self.request, self.access, self.token,
                 user_data)
         ident = callback.identifier_from_data(user_data)
         expected_user = User.objects.get(username=ident)
         # was the expected user created and returned
-        self.assertEquals(resp,expected_user)
+        self.assertEquals(resp, expected_user)
         # was the set_expiry method called on the session
         # could check expected date also
         self.assertTrue(pseudo_session.set_expiry.called)

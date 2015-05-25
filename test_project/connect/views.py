@@ -52,6 +52,5 @@ def after(request):
             context_dict['profile'] = request.user.get_profile()
         except Profile.DoesNotExist:
             pass
-        
-    
+
     return render_to_response('after.html', context_dict)

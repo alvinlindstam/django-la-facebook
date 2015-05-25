@@ -1,46 +1,34 @@
 import urlparse
-
-from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect
-from django.db.models import get_model
 from django.template.defaultfilters import slugify
 from django.contrib.auth.models import User
 from django.conf import settings
-
 from la_facebook.la_fb_logging import logger
 
-
 class BaseFacebookCallback(object):
-
     FACEBOOK_GRAPH_TARGET = "https://graph.facebook.com/me"
 
     def __call__(self, request, access, token):
         if not request.user.is_authenticated():
-            logger.debug("BaseFacebookCallback.__call__:'\
-                    ' request.user not authenticated")
+            logger.debug("BaseFacebookCallback.__call__: request.user not authenticated")
             self.authenticated = False
             user_data = self.fetch_user_data(request, access, token)
             user = self.lookup_user(request, access, user_data)
             if user is None:
-                logger.debug("BaseFacebookCallback.__call__:'\
-                 ' no existing django user found for this facebook identifier")
+                logger.debug("BaseFacebookCallback.__call__: no existing django user found for this facebook identifier")
                 ret = self.handle_no_user(request, access, token, user_data)
                 # allow handle_no_user to create a user if need be
                 if isinstance(ret, User):
-                    logger.debug("BaseFacebookCallback.__call__:'\
-                            self.handle_no_user returned valid django user")
+                    logger.debug("BaseFacebookCallback.__call__: self.handle_no_user returned valid django user")
                     user = ret
             else:
-                logger.debug("BaseFacebookCallback.__call__:'\
-                   existing django user found for this facebook identifier")
-                ret = self.handle_unauthenticated_user(request, user, access, 
-                        token, user_data)
+                logger.debug("BaseFacebookCallback.__call__: existing django user found for this facebook identifier")
+                ret = self.handle_unauthenticated_user(request, user, access, token, user_data)
             if isinstance(ret, HttpResponse):
                 return ret
         else:
-            logger.debug("BaseFacebookCallback.__call__:'\
-                    request.user is authenticated")
+            logger.debug("BaseFacebookCallback.__call__: request.user is authenticated")
             self.authenticated = True
             user = request.user
         redirect_to = self.redirect_url(request)
@@ -49,13 +37,12 @@ class BaseFacebookCallback(object):
         return redirect(redirect_to)
 
     def fetch_user_data(self, request, access, token):
-        raise NotImplementedError(
-                "Callbacks must have a fetch_user_data method")
+        raise NotImplementedError("Callbacks must have a fetch_user_data method")
 
     def lookup_user(self, request, access, user_data):
         raise NotImplementedError("Callbacks must have a lookup_user method")
 
-    def redirect_url(self, request, fallback_url=settings.LOGIN_REDIRECT_URL, 
+    def redirect_url(self, request, fallback_url=settings.LOGIN_REDIRECT_URL,
             redirect_field_name="next", session_key_value="redirect_to"):
         """
         Returns the URL to be used in login procedures by looking at different
@@ -87,9 +74,7 @@ class BaseFacebookCallback(object):
 
     def handle_unauthenticated_user(
             self, request, user, access, token, user_data):
-        raise NotImplementedError("Callbacks must have a '\
-                'handle_unauthenticated_user method")
+        raise NotImplementedError("Callbacks must have a handle_unauthenticated_user method")
 
     def identifier_from_data(self, data):
         return "%s-%s" % (slugify(data['name']), data['id'])
-
