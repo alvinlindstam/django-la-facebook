@@ -43,3 +43,25 @@ Add settings just as::
             # "LOG_LEVEL": "DEBUG",
             # "LOG_FILE": "/tmp/la_facebook.log",
     }
+
+
+Run tests
+---------
+
+Clone this repository::
+
+    git clone https://github.com/EmilStenstrom/django-la-facebook.git .
+
+Create a virtual environment so you don't polute your own (using virtualenv)::
+
+    mkvirtualenv django-la-facebook
+
+Install all the project requirements.txt::
+
+    pip install -r requirements.txt
+
+Run the provided tests::
+
+    python test_project/manage.py test connect la_facebook
+
+Rejoice!
