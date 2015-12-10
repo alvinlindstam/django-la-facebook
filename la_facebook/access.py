@@ -22,9 +22,10 @@ class OAuthAccess(object):
         Authorize OAuth access
     """
 
-    def __init__(self):
+    def __init__(self, fb_callback_path=None):
         self.signature_method = oauth.SignatureMethod_HMAC_SHA1()
         self.consumer = oauth.Consumer(self.key, self.secret)
+        self.fb_callback_path = fb_callback_path
 
     @property
     def key(self):
@@ -106,7 +107,7 @@ class OAuthAccess(object):
         current_site = Site.objects.get(pk=settings.SITE_ID)
         # @@@ http fix
         base_url = "%s://%s" % (protocol, current_site.domain)
-        callback_url = reverse("la_facebook_callback")
+        callback_url = self.fb_callback_path or reverse("la_facebook_callback")
         return "%s%s" % (base_url, callback_url)
 
     def authorized_token(self, token, verifier=None):

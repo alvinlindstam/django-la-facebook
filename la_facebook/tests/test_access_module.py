@@ -117,6 +117,15 @@ class PropertyTests(TestCase):
         expected_url = "%s%s" % (base_url, reversed_url)
         self.assertEquals(callback_url, expected_url)
 
+    def test_callback_url_external(self):
+        path = "/completely/other/path"
+        oauth = OAuthAccess(fb_callback_path=path)
+        callback_url = oauth.callback_url()
+        current_site = Site.objects.get(pk=settings.SITE_ID)
+        base_url = "http://%s" % current_site.domain
+        expected_url = "%s%s" % (base_url, path)
+        self.assertEquals(callback_url, expected_url)
+
     def test_callback(self):
         oauth = OAuthAccess()
         callback_endpoint = oauth.callback
