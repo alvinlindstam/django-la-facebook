@@ -9,7 +9,8 @@ from la_facebook.la_fb_logging import logger
 
 def facebook_login(request, redirect_field_name="next",
                         redirect_to_session_key="redirect_to",
-                        display="page"):
+                        display="page",
+                        fb_callback_path=None):
     """
         1. access OAuth
         2. set token to none
@@ -17,7 +18,7 @@ def facebook_login(request, redirect_field_name="next",
         4. redirect to OAuth authorization url
     """
     
-    access = OAuthAccess()
+    access = OAuthAccess(fb_callback_path=fb_callback_path)
     token = None
     if hasattr(request, "session"):
         logger.debug("la_facebook.views.facebook_login: request has session")
@@ -27,7 +28,7 @@ def facebook_login(request, redirect_field_name="next",
     return HttpResponseRedirect(access.authorization_url(token, display=display, protocol=protocol))
 
 
-def facebook_callback(request, error_template_name="la_facebook/fb_error.html"):
+def facebook_callback(request, error_template_name="la_facebook/fb_error.html", fb_callback_path=None):
     """
         1. define RequestContext
         2. access OAuth
@@ -40,7 +41,7 @@ def facebook_callback(request, error_template_name="la_facebook/fb_error.html"):
     """
     
     ctx = RequestContext(request)
-    access = OAuthAccess()
+    access = OAuthAccess(fb_callback_path=fb_callback_path)
     # TODO: Check to make sure the session cookie is setting correctly
     unauth_token = request.session.get("unauth_token", None)
     try:
